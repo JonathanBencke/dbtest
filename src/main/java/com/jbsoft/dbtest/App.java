@@ -9,8 +9,10 @@ import java.sql.SQLException;
 public class App {
 
 	private static final String url_template = "jdbc:<dbtype>://<host>/<database>";
-	
-	public static void main(String[] args) {
+	private static final String oracle_url_template = "jdbc:oracle:thin:@(description=(address=(host=<host>)(protocol=tcp)(port=<port>))(connect_data=(service_name=<database>)))";
+	private static final String sqlserver_url_template = "jdbc:sqlserver://<host>;databaseName=<database>;user=<user>;password=<password>";;
+
+	public static void main(String[] args) throws ClassNotFoundException {
 		String user = "";
 		String password = "";
 		String host = "";
@@ -19,8 +21,7 @@ public class App {
 		String column = "";
 		String database = "";
 		int limit = 1;
-		
-		
+
 		try {
 			dbtype = args[0];
 			host = args[1];
@@ -30,25 +31,40 @@ public class App {
 			table = args[5];
 			column = args[6];
 			limit = Integer.parseInt(args[7]);
-			
-		}catch (Exception e) {
-			System.out.println("Ex.: java -jar dbtest.jar <dbtype> <host> <database> <user> <password> <table> <column> <limit>");
+
+		} catch (Exception e) {
+			System.out.println(
+					"Ex.: java -jar dbtest.jar <dbtype> <host> <database> <user> <password> <table> <column> <limit>");
 			System.out.println("dbtypes: postgresql, oracle or sqlserver");
 			return;
 		}
-		
-		String url = url_template.replace("<dbtype>", dbtype).replace("<host>", host).replace("<database>", database);
-		
-		try (Connection connection = DriverManager.getConnection(url, user, password);
-				
-				PreparedStatement preparedStatement = connection.prepareStatement("SELECT "+column+" FROM "+table+";")) {
+		try {
+			String url = "";
+			if (dbtype.equalsIgnoreCase("oracle")) {
+				Class.forName("oracle.jdbc.OracleDriver");
+				String[] hostparts = host.split(":");
+				url = oracle_url_template.replace("<host>", hostparts[0]).replace("<port>", hostparts[1]).replace("<database>", database);
+			} if(dbtype.equalsIgnoreCase("sqlserver")){
+				Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+				url = sqlserver_url_template.replace("<host>", host).replace("<database>", database);
+			}else if(dbtype.equalsIgnoreCase("postgresql")) {
+				url = url_template.replace("<dbtype>", dbtype).replace("<host>", host).replace("<database>", database);
+			}
+			System.out.println("Connection URL: "+url);
+			Connection connection = DriverManager.getConnection(url, user, password);
+			
+
+			PreparedStatement preparedStatement = connection
+					.prepareStatement("SELECT " + column + " FROM " + table);
 			System.out.println(preparedStatement);
 			preparedStatement.setMaxRows(limit);
 			ResultSet rs = preparedStatement.executeQuery();
 			while (rs.next()) {
-				String login = rs.getString("idlogin");
-				System.out.println(login);
+				String value = rs.getObject(column).toString();
+				System.out.println(value);
 			}
+			preparedStatement.close();
+			connection.close();
 		} catch (SQLException e) {
 			printSQLException(e);
 		}
