@@ -10,7 +10,7 @@ public class App {
 
 	private static final String url_template = "jdbc:<dbtype>://<host>/<database>";
 	private static final String oracle_url_template = "jdbc:oracle:thin:@(description=(address=(host=<host>)(protocol=tcp)(port=<port>))(connect_data=(service_name=<database>)))";
-	private static final String sqlserver_url_template = "jdbc:sqlserver://<host>;databaseName=<database>;user=<user>;password=<password>";;
+	private static final String sqlserver_url_template = "jdbc:sqlserver://<host>;databaseName=<database>;encrypt=false;trustServerCertificate=false";
 
 	public static void main(String[] args) throws ClassNotFoundException {
 		String user = "";
