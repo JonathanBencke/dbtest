@@ -54,9 +54,11 @@ public class App {
 			} else if(dbtype.equalsIgnoreCase("postgresql")) {
 				url = url_template.replace("<dbtype>", dbtype).replace("<host>", host).replace("<database>", database);
 			}
+			long time = new Date().getTime();
 			System.out.println("Connection URL: "+url);
 			Connection connection = DriverManager.getConnection(url, user, password);
-			
+			System.out.println("Connection time: "+(new Date().getTime()-time)+"ms");
+			time = new Date().getTime();
 
 			PreparedStatement preparedStatement = connection
 					.prepareStatement("SELECT " + column + " FROM " + table);
@@ -69,6 +71,7 @@ public class App {
 			}
 			preparedStatement.close();
 			connection.close();
+			System.out.println("Select time: "+(new Date().getTime()-time)+"ms");
 		} catch (SQLException e) {
 			printSQLException(e);
 		}
