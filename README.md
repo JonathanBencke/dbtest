@@ -15,3 +15,6 @@ SQL Server:
 
 Postgres: 
 `java -jar dbtest.jar postgresql 127.0.0.1:5432 dev user 123456 users name 10`
+
+MySQL:
+`java -jar dbtest.jar mysql 127.0.0.1:3306 dev user 123456 users name 10`

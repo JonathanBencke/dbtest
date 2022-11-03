@@ -11,6 +11,7 @@ public class App {
 	private static final String url_template = "jdbc:<dbtype>://<host>/<database>";
 	private static final String oracle_url_template = "jdbc:oracle:thin:@(description=(address=(host=<host>)(protocol=tcp)(port=<port>))(connect_data=(service_name=<database>)))";
 	private static final String sqlserver_url_template = "jdbc:sqlserver://<host>;databaseName=<database>;encrypt=false;trustServerCertificate=false";
+	private static final String mysql_url_template = "jdbc:mysql://<host>/<database>";
 
 	public static void main(String[] args) throws ClassNotFoundException {
 		String user = "";
@@ -35,7 +36,7 @@ public class App {
 		} catch (Exception e) {
 			System.out.println(
 					"Ex.: java -jar dbtest.jar <dbtype> <host> <database> <user> <password> <table> <column> <limit>");
-			System.out.println("dbtypes: postgresql, oracle or sqlserver");
+			System.out.println("dbtypes: postgresql, oracle, mySql or sqlserver");
 			return;
 		}
 		try {
@@ -47,7 +48,10 @@ public class App {
 			} if(dbtype.equalsIgnoreCase("sqlserver")){
 				Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 				url = sqlserver_url_template.replace("<host>", host).replace("<database>", database);
-			}else if(dbtype.equalsIgnoreCase("postgresql")) {
+			} if(dbtype.equalsIgnoreCase("mysql")){
+				Class.forName("com.mysql.cj.jdbc.Driver");
+				url = mysql_url_template.replace("<host>", host).replace("<database>", database);
+			} else if(dbtype.equalsIgnoreCase("postgresql")) {
 				url = url_template.replace("<dbtype>", dbtype).replace("<host>", host).replace("<database>", database);
 			}
 			System.out.println("Connection URL: "+url);
